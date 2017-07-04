@@ -5,10 +5,12 @@ from textblob.sentiments import NaiveBayesAnalyzer
 import matplotlib.pyplot as plt
 
 
+
+
 BASE_URL = 'https://api.instagram.com/v1/'
 
 '''
-Function declaration to get your own info
+Function declaration to get your info of the 
 '''
 def self_info():
     request_url = (BASE_URL + 'users/self/?access_token=%s') % (ACCESS_TOKEN)
@@ -39,7 +41,7 @@ def get_user_id(insta_username):
     if user_info['meta']['code'] == 200:
         if len(user_info['data']):
             return user_info['data'][0]['id']
-            #print user_info['data'][0]['id']
+
         else:
             return None
     else:
@@ -113,12 +115,7 @@ def get_user_post(insta_username):
         print 'Status code other than 200 received!'
 
 
-
-
-#def get_comments_list()
 def get_media_liked_own(): #function for retrieving the recently liked pic by the owner of the access token
-    #user_id = get_user_id()
-    #if user_id == None:
 
     request_url = (BASE_URL + 'users/self/media/liked?access_token=%s') % ( ACCESS_TOKEN)
     print 'GET request url : %s' % (request_url)
@@ -131,6 +128,7 @@ def get_media_liked_own(): #function for retrieving the recently liked pic by th
             image_url = user_media_liked['data'][0]['images']['standard_resolution']['url']
             urllib.urlretrieve(image_url, image_name)
             print 'Your image has been downloaded!'
+            return user_media_liked['data'][0]['id']
         else:
             print 'Post does not exist!'
     else:
@@ -181,11 +179,6 @@ def post_a_comment(insta_username):
     else:
         print "Unable to add comment. Try again!"
 
-
-
-
-
-
 def delete_negative_comment(insta_username):
     media_id = get_post_id(insta_username)
     request_url = (BASE_URL + 'media/%s/comments/?access_token=%s') % (media_id, ACCESS_TOKEN)
@@ -233,39 +226,21 @@ def comment_list(insta_username):
 
 
 
-def hash_tags(list_hashtags):
-    sizes=[]
-    for tags in list_hashtags :
-        request_url=(BASE_URL + '/tags/{tag_name}?access_token=&s' ) % (tags, ACCESS_TOKEN)
-        print 'Get request url : %s' % (request_url)
-        tags_info=requests.get(request_url).json()
-        if  tags_info['meta']['code']==200:
-         if len(tags_info['data']):
+def user_search(insta_username):
 
-             sizes.append(int(tags_info['data']['media_count']))
-             #print str(tags_info['data'][0]['media_count'])
-         else:
-             print 'No tag is there for this particular media!'
-             exit()
+    request_url=(BASE_URL + 'users/search?q=%s&access_token=%s') % (insta_username, ACCESS_TOKEN)
+    Q=requests.get(request_url).json()
 
+    if Q['meta']['code']==200:
+        if len(Q['data']):
+            for x in range (0,len(Q['data'])):
+                search = Q['data'][x]['id']
+                print "The users with this username is: %s\n" % search
 
-
-     # only "explode" the 2nd slice (i.e. 'Hogs')
-
-    fig1, ax1 = plt.subplots()
-    ax1.pie(sizes, labels=list_hashtags, autopct='%1.1f%%',
-        shadow=True, startangle=90)
-    ax1.axis('equal')  # Equal aspect ratio ensures that pie is drawn as a circle.
-
-    plt.show()
-
-
-
-
-
-
-
-
+        else:
+            print 'No results found for this user!'
+    else:
+        print 'Status code other than 200 received!'
 
 def start_bot():
      while True:
@@ -281,7 +256,9 @@ def start_bot():
          print "g.Make a comment on the recent post of a user\n"
          print "h.fetch the comment list of the post of the user\n"
          print "i.Delete negative comments from the recent post of a user\n"
-         print "j.No. of images associated with the particular hashtag\n"
+         print "j. Search the user by username\n"
+
+
          print "z.Exit"
 
          choice=raw_input("Enter your choice: ")
@@ -289,29 +266,73 @@ def start_bot():
              self_info()
          elif choice=="b":
              insta_username = raw_input("Enter the username of the user: ")
-             get_user_info(insta_username)
+             if len(insta_username) > 0:
+
+                 if set('[~!@#$%^&*()+{}":;\']+$ " "').intersection(insta_username):
+                     print "Invalid name."
+                 else:
+                     print "Valid name!"
+                     get_user_info(insta_username)
+
          elif choice=="c":
              get_own_post()
          elif choice=="d":
              insta_username = raw_input("Enter the username of the user whose recent post you want to see and download: ")
-             get_user_post(insta_username)
+             if len(insta_username) > 0:
+
+                 if set('[~!@#$%^&*()+{}":;\']+$ " "').intersection(insta_username):
+                     print "Invalid name."
+                 else:
+                     print "Valid name!"
+                     get_user_post(insta_username)
          elif choice=="e":
             get_media_liked_own()
          elif choice == "f":
              insta_username = raw_input("Enter the username of the user: ")
-             like_a_post(insta_username)
+             if len(insta_username) > 0:
+
+                 if set('[~!@#$%^&*()+{}":;\']+$ " "').intersection(insta_username):
+                     print "Invalid name."
+                 else:
+                     print "Valid name!"
+                     like_a_post(insta_username)
          elif choice == "g":
              insta_username = raw_input("Enter the username of the user: ")
-             post_a_comment(insta_username)
+             if len(insta_username) > 0:
+
+                 if set('[~!@#$%^&*()+{}":;\']+$ " "').intersection(insta_username):
+                     print "Invalid name."
+                 else:
+                     print "Valid name!"
+                     post_a_comment(insta_username)
          elif choice =="h":
              insta_username=raw_input("enter the username whose posts comments you want to fetch : ")
-             comment_list(insta_username)
+             if len(insta_username) > 0:
+
+                 if set('[~!@#$%^&*()+{}":;\']+$ " "').intersection(insta_username):
+                     print "Invalid name."
+                 else:
+                     print "Valid name!"
+                     comment_list(insta_username)
          elif choice == "i":
              insta_username = raw_input("Enter the username of the user: ")
-             delete_negative_comment(insta_username)
+             if len(insta_username) > 0:
+
+                 if set('[~!@#$%^&*()+{}":;\']+$ " "').intersection(insta_username):
+                     print "Invalid name."
+                 else:
+                     print "Valid name!"
+                     delete_negative_comment(insta_username)
          elif choice == "j":
-             list_hashtags= raw_input("enter the hashtags you want to search: ")
-             hash_tags(list_hashtags)
+             insta_username = raw_input("Enter the username of the user you want to search: ")
+             if len(insta_username) > 0:
+
+                 if set('[~!@#$%^&*()+{}":;\']+$ " "').intersection(insta_username):
+                     print "Invalid name."
+                 else:
+                     print "Valid name!"
+                     user_search(insta_username)
+
          elif choice=="z":
              exit()
          else:
