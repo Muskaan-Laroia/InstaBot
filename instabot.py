@@ -1,18 +1,14 @@
-import requests,urllib
-from keys import ACCESS_TOKEN
+import requests
+import urllib
 from textblob import TextBlob
 from textblob.sentiments import NaiveBayesAnalyzer
-import matplotlib.pyplot as plt
 
-
-
+from keys import ACCESS_TOKEN
 
 BASE_URL = 'https://api.instagram.com/v1/'
 
-'''
-Function declaration to get your info of the 
-'''
-def self_info():
+
+def self_info():      #this is for getting info of the owner of the access token
     request_url = (BASE_URL + 'users/self/?access_token=%s') % (ACCESS_TOKEN)
     print 'GET request url : %s' % (request_url)
     user_info = requests.get(request_url).json()
@@ -59,7 +55,7 @@ def get_user_info(insta_username):
         exit()
     request_url = (BASE_URL + 'users/%s?access_token=%s') % (user_id, ACCESS_TOKEN)
     print 'GET request url : %s' % (request_url)
-    user_info = requests.get(request_url).json()
+    user_info = requests.get(request_url).json()  #json objects are for getting data
 
     if user_info['meta']['code'] == 200 : #or user_info['meta']['code']== 304:
         if len(user_info['data']):
@@ -72,8 +68,9 @@ def get_user_info(insta_username):
     else:
         print 'Status code other than 200 or 304 received!'
 
-
-#function for getting the recent post of the owner of the access token:
+'''
+function for getting the recent post of the owner of the access token
+'''
 
 def get_own_post():
     request_url = (BASE_URL + 'users/self/media/recent/?access_token=%s') % (ACCESS_TOKEN)
@@ -91,7 +88,9 @@ def get_own_post():
     else:
         print 'Status code other than 200 received!'
 
-
+'''
+this functions is for getting the recently uploaded post if the user 
+'''
 
 def get_user_post(insta_username):
     user_id = get_user_id(insta_username)
@@ -134,6 +133,9 @@ def get_media_liked_own(): #function for retrieving the recently liked pic by th
     else:
         print 'Status code other than 200 received!'
 
+'''
+this function gets the post_id of the post of the given username 
+'''
 def get_post_id(insta_username):
     user_id = get_user_id(insta_username)
     if user_id == None:
@@ -153,6 +155,9 @@ def get_post_id(insta_username):
         print 'Status code other than 200 received!'
         exit()
 
+'''
+this function is for liking a post
+'''
 def like_a_post(insta_username):
     media_id = get_post_id(insta_username)
     request_url = (BASE_URL + 'media/%s/likes') % (media_id)
@@ -164,7 +169,9 @@ def like_a_post(insta_username):
     else:
         print 'Your like was unsuccessful. Try again!'
 
-
+'''
+this function is to ppost a comment on a particular post of the user
+'''
 def post_a_comment(insta_username):
     media_id = get_post_id(insta_username)
     comment_text = raw_input("Your comment: ")
@@ -179,6 +186,9 @@ def post_a_comment(insta_username):
     else:
         print "Unable to add comment. Try again!"
 
+'''
+this function is to delete the negative comments of the particular user's particular post 
+'''
 def delete_negative_comment(insta_username):
     media_id = get_post_id(insta_username)
     request_url = (BASE_URL + 'media/%s/comments/?access_token=%s') % (media_id, ACCESS_TOKEN)
@@ -191,8 +201,10 @@ def delete_negative_comment(insta_username):
             for x in range(0, len(comment_info['data'])):
                 comment_id = comment_info['data'][x]['id']
                 comment_text = comment_info['data'][x]['text']
+
                 blob = TextBlob(comment_text, analyzer=NaiveBayesAnalyzer())
-                if (blob.sentiment.p_neg > blob.sentiment.p_pos):
+                if (blob.sentiment.p_neg > blob.sentiment.p_pos or comment_text=='not good' or comment_text=='hate' or comment_text=='bad' ):
+
                     print 'Negative comment : %s' % (comment_text)
                     delete_url = (BASE_URL + 'media/%s/comments/%s/?access_token=%s') % (media_id, comment_id, ACCESS_TOKEN)
                     print 'DELETE request url : %s' % (delete_url)
@@ -202,13 +214,16 @@ def delete_negative_comment(insta_username):
                         print 'Comment successfully deleted!\n'
                     else:
                         print 'Unable to delete comment!'
+
                 else:
                     print 'Positive comment : %s\n' % (comment_text)
         else:
             print 'There are no existing comments on the post!'
     else:
         print 'Status code other than 200 received!'
-
+'''
+this function gets the comment list on a particular post
+'''
 
 def comment_list(insta_username):
     media_id = get_post_id(insta_username)
@@ -224,7 +239,8 @@ def comment_list(insta_username):
     else:
         print 'Status code other than 200 received!'
 
-
+'''
+this function is to get the id of the user which is searched'''
 
 def user_search(insta_username):
 
@@ -241,7 +257,9 @@ def user_search(insta_username):
             print 'No results found for this user!'
     else:
         print 'Status code other than 200 received!'
-
+'''
+this is the function in which menu is displayed and other functions are called
+'''
 def start_bot():
      while True:
          print '\n'
@@ -251,7 +269,7 @@ def start_bot():
          print "b.Get details of a user by username\n"
          print "c.Get your recent post\n "
          print "d.Get the recent post of a user\n"
-         print "e.Get the media recently liked by the user\n"
+         print "e.Get the media recently liked by you\n"
          print "f.Like the recent post of a user\n"
          print "g.Make a comment on the recent post of a user\n"
          print "h.fetch the comment list of the post of the user\n"
@@ -265,7 +283,7 @@ def start_bot():
          if choice=="a":
              self_info()
          elif choice=="b":
-             insta_username = raw_input("Enter the username of the user: ")
+             insta_username = raw_input("Enter the username of the user whose details you want to fetch: ")
              if len(insta_username) > 0:
 
                  if set('[~!@#$%^&*()+{}":;\']+$ " "').intersection(insta_username):
@@ -288,7 +306,7 @@ def start_bot():
          elif choice=="e":
             get_media_liked_own()
          elif choice == "f":
-             insta_username = raw_input("Enter the username of the user: ")
+             insta_username = raw_input("Enter the username of the user whose recent post you to like: ")
              if len(insta_username) > 0:
 
                  if set('[~!@#$%^&*()+{}":;\']+$ " "').intersection(insta_username):
@@ -297,7 +315,7 @@ def start_bot():
                      print "Valid name!"
                      like_a_post(insta_username)
          elif choice == "g":
-             insta_username = raw_input("Enter the username of the user: ")
+             insta_username = raw_input("Enter the username of the user on whose recent post you want to post a comment: ")
              if len(insta_username) > 0:
 
                  if set('[~!@#$%^&*()+{}":;\']+$ " "').intersection(insta_username):
@@ -306,7 +324,7 @@ def start_bot():
                      print "Valid name!"
                      post_a_comment(insta_username)
          elif choice =="h":
-             insta_username=raw_input("enter the username whose posts comments you want to fetch : ")
+             insta_username=raw_input("Enter the username whose recent post's comment_list you want to fetch : ")
              if len(insta_username) > 0:
 
                  if set('[~!@#$%^&*()+{}":;\']+$ " "').intersection(insta_username):
@@ -315,7 +333,7 @@ def start_bot():
                      print "Valid name!"
                      comment_list(insta_username)
          elif choice == "i":
-             insta_username = raw_input("Enter the username of the user: ")
+             insta_username = raw_input("Enter the username of the user whose recent post's negative comments you want to delete: ")
              if len(insta_username) > 0:
 
                  if set('[~!@#$%^&*()+{}":;\']+$ " "').intersection(insta_username):
