@@ -264,12 +264,14 @@ def user_search(insta_username):
     else:
         print 'Status code other than 200 received!'
 
-
+"""
+variant created below for popular hashtags
+"""
 def hash_tag():
     i = 0
     tags = []
     tag_name = []
-    while i < 3:
+    while i < 5:
 
         tag = raw_input("enter the hashtag : ")
 
@@ -282,9 +284,9 @@ def hash_tag():
         if hash_items['meta']['code'] == 200:
             if len(hash_items['data']):  # implementation of how to fetch the hashtag data!
 
-                print hash_items['data']['media_count']
+                print "the media count of the said chain is : " + str(hash_items['data']['media_count'])
                 tags.append(hash_items['data']['media_count'])
-                print tags
+                print "the list of media count after being appended is : " + str(tags)
                 i = i + 1
 
 
@@ -295,16 +297,18 @@ def hash_tag():
             exit()
     return tags
 
-# def pie_chart():
-#     # Pie chart, where the slices will be ordered and plotted counter-clockwise:
-#     labels =
-#     sizes = hash_tag()
-#     fig1, ax1 = plt.subplots()
-#     ax1.pie(sizes, labels=labels, autopct='%1.1f%%',
-#             shadow=True, startangle=90)
-#     ax1.axis('equal')  # Equal aspect ratio ensures that pie is drawn as a circle.
-#
-#     plt.show()
+
+def pie_chart():
+     # Pie chart, where the slices will be ordered and plotted counter-clockwise:
+
+     sizes = hash_tag()
+
+     fig1, ax1 = plt.subplots()
+     ax1.pie(sizes , autopct='%1.1f%%',
+             shadow=True, startangle=90)
+     ax1.axis('equal')  # Equal aspect ratio ensures that pie is drawn as a circle.
+
+
 
 
 
@@ -328,8 +332,9 @@ def start_bot():
          print "g.Make a comment on the recent post of a user\n"
          print "h.fetch the comment list of the post of the user\n"
          print "i.Delete negative comments from the recent post of a user\n"
-         print "j. Search the user by username\n"
-         print "k. Wana see which is the most popular foodchain? enter any 5 among which you want to compare!\n"
+         print "j.Search the user by username\n"
+         print "k.Wana see which is the most popular chain? enter any 5 among which you want to compare and see the media count!\n"
+         # print "l.display the pie chart to compare\n"
 
 
          print "z.Exit\n"
@@ -408,14 +413,12 @@ def start_bot():
 
 
 
-         elif choice == "k":
-
-             hash_tag()
-
-
-
-
-
+         # elif choice == "k":
+         #
+         #     hash_tag()
+         elif choice=="k":
+             pie_chart()
+             plt.show()
          elif choice=="z":
              exit()
          else:
