@@ -2,7 +2,7 @@ import requests
 import urllib
 from textblob import TextBlob
 from textblob.sentiments import NaiveBayesAnalyzer
-
+import matplotlib.pyplot as plt  # used for plotting graphs or pie charts, pictorial representations
 from keys import ACCESS_TOKEN
 
 BASE_URL = 'https://api.instagram.com/v1/'
@@ -136,6 +136,7 @@ def get_media_liked_own(): #function for retrieving the recently liked pic by th
 '''
 this function gets the post_id of the post of the given username 
 '''
+
 def get_post_id(insta_username):
     user_id = get_user_id(insta_username)
     if user_id == None:
@@ -158,6 +159,7 @@ def get_post_id(insta_username):
 '''
 this function is for liking a post
 '''
+
 def like_a_post(insta_username):
     media_id = get_post_id(insta_username)
     request_url = (BASE_URL + 'media/%s/likes') % (media_id)
@@ -172,6 +174,7 @@ def like_a_post(insta_username):
 '''
 this function is to ppost a comment on a particular post of the user
 '''
+
 def post_a_comment(insta_username):
     media_id = get_post_id(insta_username)
     comment_text = raw_input("Your comment: ")
@@ -189,6 +192,7 @@ def post_a_comment(insta_username):
 '''
 this function is to delete the negative comments of the particular user's particular post 
 '''
+
 def delete_negative_comment(insta_username):
     media_id = get_post_id(insta_username)
     request_url = (BASE_URL + 'media/%s/comments/?access_token=%s') % (media_id, ACCESS_TOKEN)
@@ -221,6 +225,7 @@ def delete_negative_comment(insta_username):
             print 'There are no existing comments on the post!'
     else:
         print 'Status code other than 200 received!'
+
 '''
 this function gets the comment list on a particular post
 '''
@@ -240,7 +245,8 @@ def comment_list(insta_username):
         print 'Status code other than 200 received!'
 
 '''
-this function is to get the id of the user which is searched'''
+this function is to get the id of the user which is searched
+'''
 
 def user_search(insta_username):
 
@@ -257,9 +263,57 @@ def user_search(insta_username):
             print 'No results found for this user!'
     else:
         print 'Status code other than 200 received!'
+
+
+def hash_tag():
+    i = 0
+    tags = []
+    tag_name = []
+    while i < 3:
+
+        tag = raw_input("enter the hashtag : ")
+
+        request_url = ('https://api.instagram.com/v1/tags/%s?access_token=%s') % (tag, ACCESS_TOKEN)
+        tag_name.append(tag)
+        print tag_name
+        print 'GET request url : %s' % (request_url)
+        hash_items = requests.get(request_url).json()
+
+        if hash_items['meta']['code'] == 200:
+            if len(hash_items['data']):  # implementation of how to fetch the hashtag data!
+
+                print hash_items['data']['media_count']
+                tags.append(hash_items['data']['media_count'])
+                print tags
+                i = i + 1
+
+
+            else:
+                print 'Status code other than 200 received!'
+
+        else:
+            exit()
+    return tags
+
+# def pie_chart():
+#     # Pie chart, where the slices will be ordered and plotted counter-clockwise:
+#     labels =
+#     sizes = hash_tag()
+#     fig1, ax1 = plt.subplots()
+#     ax1.pie(sizes, labels=labels, autopct='%1.1f%%',
+#             shadow=True, startangle=90)
+#     ax1.axis('equal')  # Equal aspect ratio ensures that pie is drawn as a circle.
+#
+#     plt.show()
+
+
+
+
+
 '''
 this is the function in which menu is displayed and other functions are called
 '''
+
 def start_bot():
      while True:
          print '\n'
@@ -275,9 +329,10 @@ def start_bot():
          print "h.fetch the comment list of the post of the user\n"
          print "i.Delete negative comments from the recent post of a user\n"
          print "j. Search the user by username\n"
+         print "k. Wana see which is the most popular foodchain? enter any 5 among which you want to compare!\n"
 
 
-         print "z.Exit"
+         print "z.Exit\n"
 
          choice=raw_input("Enter your choice: ")
          if choice=="a":
@@ -350,6 +405,16 @@ def start_bot():
                  else:
                      print "Valid name!"
                      user_search(insta_username)
+
+
+
+         elif choice == "k":
+
+             hash_tag()
+
+
+
+
 
          elif choice=="z":
              exit()
